@@ -1,7 +1,7 @@
 import 'dotenv/config';
 import express from 'express';import helmet from 'helmet';import cors from 'cors';import rateLimit from 'express-rate-limit';import {z} from 'zod';import {randomBytes,createHash,randomUUID,timingSafeEqual} from 'node:crypto';import path from 'node:path';import {fileURLToPath} from 'node:url';
 import {db,configured,publicAuth,query,email,audit,esc} from './lib.js';import {accessReason,safeMeeting} from './access.js';import {renderAgreement,makePDF} from './pdf.js';
-const app=express();const CLIENT=process.env.CLIENT_URL||'http://localhost:5173';
+const app=express();if(process.env.VERCEL)app.set('trust proxy',1);const CLIENT=process.env.CLIENT_URL||'http://localhost:5173';
 app.use(helmet());app.use(cors({origin:CLIENT}));app.use(express.json({limit:'3mb'}));app.use('/api',rateLimit({windowMs:60000,limit:120}));
 app.get('/api/health',(_,res)=>res.json({ok:true,configured}));app.use('/api',(req,res,next)=>configured?next():res.status(503).json({error:'Add your Supabase values to .env and restart the server.'}));
 const tokenLimit=rateLimit({windowMs:60000,limit:5});const hash=s=>createHash('sha256').update(s).digest('hex');const password=z.string().min(8).max(128).regex(/\d/,'Include at least one number');const id=z.string().uuid();const text=z.string().trim().min(1).max(500);const wrap=fn=>(req,res,next)=>Promise.resolve(fn(req,res)).catch(next);
@@ -58,4 +58,6 @@ app.get('/api/admin/audit',wrap(async(req,res)=>res.json(await query(db.from('au
 app.get('/api/admin/overview',wrap(async(req,res)=>{const [p,a,m,l,e]=await Promise.all([query(db.from('profiles').select('status').eq('role','member')),active(),query(db.from('meetings').select('id,title,starts_at').eq('status','scheduled').gte('ends_at',new Date().toISOString()).order('starts_at').limit(5)),query(db.from('audit_logs').select('*,profiles(full_name)').order('created_at',{ascending:false}).limit(10)),query(db.from('email_logs').select('id').eq('status','failed'))]);const s=a?await query(db.from('nda_signatures').select('id').eq('agreement_id',a.id).is('revoked_at',null)):[];res.json({total:p.length,active:p.filter(p=>p.status==='active').length,pending:p.filter(p=>p.status==='invited').length,signed:s.length,meetings:m,activity:l,failed:e.length})}));
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'../client/dist');app.use(express.static(root));app.get('/{*path}',(req,res)=>{if(req.path.startsWith('/api/'))return res.status(404).json({error:'Endpoint not found'});res.sendFile(path.join(root,'index.html'))});
 app.use((error,req,res,next)=>{if(res.headersSent)return next(error);console.error(error.message);res.status(error instanceof z.ZodError?400:error.status||500).json({error:error instanceof z.ZodError?error.issues.map(i=>i.message).join('; '):error.status?error.message:'Request failed. Please try again.'})});
-app.listen(process.env.PORT||4000,()=>console.log(`Classence API running on port ${process.env.PORT||4000}${configured?'':' (add .env credentials)'}`));
+if(!process.env.VERCEL)app.listen(process.env.PORT||4000,()=>console.log(`Classence API running on port ${process.env.PORT||4000}${configured?'':' (add .env credentials)'}`));
+
+export default app;
