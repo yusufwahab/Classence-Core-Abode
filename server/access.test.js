@@ -5,3 +5,15 @@ for(const [name,p,m,s,r,n,expected] of [['unsigned',profile,meeting,null,false,n
 test('meeting serialization cannot expose URL',()=>{assert.equal(Object.hasOwn(safeMeeting(meeting),'meet_url'),false)});
 test('agreement fills all supported values',()=>assert.equal(renderAgreement('{{full_name}} - {{reference}}',{full_name:'Ada',reference:'123'}),'Ada - 123'));
 test('generates a valid multipage signed PDF',async()=>{const image=Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=','base64');const pdf=await makePDF({agreement:{body:('Confidential information remains protected.\n').repeat(150),version:1},profile:{classence_id:'CCA-0001',email:'ada@example.com'},details:{full_name:'Ada'},image,id:'reference',signedAt:'2026-10-10T12:00:00Z'});assert.equal(pdf.subarray(0,4).toString(),'%PDF')});
+import {ndaInput} from './nda-input.js';
+const ndaBase={agreement_id:'00000000-0000-4000-8000-000000000001',full_name:'Ada',phone:'08012345678',signature_method:'drawn',signature:'data:image/png;base64,example',accepted:true};
+test('NDA accepts omitted, blank and short optional role/address fields',()=>{
+ for(const fields of [{},{position:'',address:''},{position:'QA',address:'A'}]){
+  const result=ndaInput.parse({...ndaBase,...fields});assert.equal(result.position,fields.position||'');assert.equal(result.address,fields.address||'');
+ }
+});
+test('optional NDA fields retain limits and acceptance remains required',()=>{
+ assert.equal(ndaInput.safeParse({...ndaBase,address:'a'.repeat(2001)}).success,false);
+ assert.equal(ndaInput.safeParse({...ndaBase,position:'a'.repeat(501)}).success,false);
+ assert.equal(ndaInput.safeParse({...ndaBase,accepted:false}).success,false);
+});

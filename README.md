@@ -45,3 +45,5 @@ The full frontend and backend can now deploy in one Vercel project. Follow [VERC
 ## Separate Vercel frontend and Render backend
 
 Set VITE_API_URL=https://classence-core-abode.onrender.com in Vercel and redeploy the frontend. Set CLIENT_URL=https://classencecore.yabvil.com on Render and restart/redeploy the backend. Keep Supabase and Brevo secrets on Render; they are unnecessary on Vercel when the frontend calls Render directly. The code adds /api itself. Leave VITE_API_URL blank for local development. Root .env is loaded by Vite, which exposes only VITE_ variables to the browser; never prefix provider secrets with VITE_. For Brevo webhooks, use the Render origin followed by /api/webhooks/brevo?secret=YOUR_SECRET.
+
+Position/Role and Residential address are optional when signing an NDA. Blank or omitted values are accepted by the backend and omitted from the PDF details block. Full name, verified email, phone, signature and agreement acceptance remain required.
