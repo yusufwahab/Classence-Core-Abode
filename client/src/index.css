@@ -1,0 +1,7 @@
+@import "tailwindcss";
+@theme {
+ --color-brand-50:#F5F3FF; --color-brand-100:#EDE9FE; --color-brand-200:#DDD6FE; --color-brand-300:#C4B5FD; --color-brand-500:#8B5CF6; --color-brand-600:#7C3AED; --color-brand-700:#6D28D9; --color-brand-800:#5B21B6; --color-brand-950:#2E1065; --color-ink:#1F1A33; --color-muted:#6B6585; --color-danger:#B42318; --color-success:#027A48; --color-warning:#B54708;
+}
+body { margin:0; background:white; color:var(--color-ink); font-size:14px; }
+button,a,input,select,textarea { touch-action:manipulation; }
+button { cursor:pointer; } button:disabled { cursor:not-allowed; }
