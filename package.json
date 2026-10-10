@@ -8,7 +8,8 @@
     "start": "node server/index.js",
     "server": "node --watch server/index.js",
     "seed": "node server/scripts/seed-super-admin.js",
-    "test": "node --test server/access.test.js"
+    "test": "node --test server/access.test.js",
+    "nda:update": "node server/scripts/apply-default-nda.js"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.3.3",
