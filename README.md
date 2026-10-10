@@ -37,3 +37,11 @@ Set `CLIENT_URL` to the actual public HTTPS origin. Run `npm run build`, then `n
 `client/` frontend; `server/` backend and default NDA; `supabase/schema.sql` provisioning; `.env` local secrets; `.env.example` portable template. The root package scripts are the supported entry points.
 
 On Windows PowerShell, use `npm.cmd` instead of `npm` if script execution is disabled (for example `npm.cmd run dev`, `npm.cmd run server`, `npm.cmd run seed`). No execution-policy change is needed.
+
+## Vercel deployment
+
+The full frontend and backend can now deploy in one Vercel project. Follow [VERCEL.md](./VERCEL.md); use the repository root and client/dist output, and add backend secrets in Vercel Settings > Environment Variables.
+
+## Separate Vercel frontend and Render backend
+
+Set VITE_API_URL=https://classence-core-abode.onrender.com in Vercel and redeploy the frontend. Set CLIENT_URL=https://classencecore.yabvil.com on Render and restart/redeploy the backend. Keep Supabase and Brevo secrets on Render; they are unnecessary on Vercel when the frontend calls Render directly. The code adds /api itself. Leave VITE_API_URL blank for local development. Root .env is loaded by Vite, which exposes only VITE_ variables to the browser; never prefix provider secrets with VITE_. For Brevo webhooks, use the Render origin followed by /api/webhooks/brevo?secret=YOUR_SECRET.

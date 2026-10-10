@@ -1,5 +1,5 @@
 {
-  "name": "classence-core",
+  "name": "classence-core-client",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -13,7 +13,8 @@
     "@tailwindcss/vite": "^4.3.3",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
-    "tailwindcss": "^4.3.3"
+    "tailwindcss": "^4.3.3",
+    "react-router-dom": "^7.0.0"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
